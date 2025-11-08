@@ -1,6 +1,6 @@
-#define BLYNK_TEMPLATE_ID "TMPL63xLsGVJg"
+#define BLYNK_TEMPLATE_ID ""
 #define BLYNK_TEMPLATE_NAME "test"
-#define BLYNK_AUTH_TOKEN "hI8kePr-faFVyeinW8gdZCq9u4tjSuJ8"
+#define BLYNK_AUTH_TOKEN ""
 // Necessary Libraries
 #include <MFRC522.h>
 #include <MFRC522Extended.h>
@@ -14,8 +14,8 @@
 #include <BlynkSimpleEsp32.h>
 #include <Preferences.h>
 
-char ssid[] = "Cuong";
-char pass[] = "000000000";
+char ssid[] = "";
+char pass[] = "";
 BlynkTimer timer;
 // Keypad Configurations
 const byte ROWS = 4;
