@@ -1,80 +1,120 @@
-## 🔐 Dự án: Hệ thống khóa cửa thông minh sử dụng ESP32 và nền tảng Blynk
-
-**Mục tiêu:**  
-Thiết kế và xây dựng **hệ thống khóa cửa thông minh toàn diện**, vừa đảm bảo an ninh cao, vừa mang lại sự tiện lợi cho người dùng trong sinh hoạt hằng ngày.
-
----
-
-### 🎯 Các chức năng chính
-- **Xác thực đa phương thức:**  
-  Người dùng có thể mở khóa bằng **thẻ RFID** hoặc **mật khẩu** nhập từ bàn phím **Keypad 4x4**.  
-
-- **Điều khiển và giám sát từ xa:**  
-  Cho phép mở khóa, khóa cửa và theo dõi trạng thái (đóng/mở, cảnh báo) thông qua **ứng dụng di động Blynk**.  
-
-- **Cảnh báo an ninh:**  
-  Phát hiện hành vi xâm nhập trái phép và gửi **thông báo cảnh báo ngay lập tức** lên ứng dụng.  
-
-- **Tự động hóa:**  
-  Cửa **tự động khóa lại** khi đóng, dựa trên tín hiệu từ **cảm biến hồng ngoại**.  
+# 🔐 Smart Lock System – ESP32  
+Hệ thống khóa cửa thông minh sử dụng **ESP32**, **RFID**, **Keypad 4x4**, **OLED SSD1306**, **Servo SG90** và **Blynk IoT**.  
+Dự án được xây dựng theo kiến trúc **FSM – Finite State Machine (Máy trạng thái hữu hạn)** và cơ chế **Non-blocking**, đảm bảo hoạt động ổn định và không bị treo.
 
 ---
 
-### ⚙️ Thiết kế hệ thống
+## 📌 1. Giới thiệu  
+Dự án mô phỏng một hệ thống khóa cửa thông minh đa phương thức xác thực:
 
-#### 🧠 Khối xử lý trung tâm
-- **ESP32** làm vi điều khiển chính, xử lý toàn bộ logic xác thực, điều khiển và kết nối IoT.
+- Nhập mật khẩu qua Keypad  
+- Quét thẻ từ RFID  
+- Nhập mật khẩu từ Blynk App  
+- Báo động nếu phát hiện đột nhập bằng cảm biến IR  
 
-#### 🪪 Khối xác thực
-- **RFID-RC522** đọc thẻ từ hợp lệ.  
-- **Keypad 4x4** cho phép người dùng nhập mật khẩu.
-
-#### 🔩 Khối chấp hành
-- **Servo SG90** điều khiển chốt khóa (đóng/mở cửa).  
-
-#### 👁️ Khối cảm biến
-- **Cảm biến hồng ngoại (IR Sensor)** xác định trạng thái cửa (đang mở hay đóng).  
-
-#### 🔔 Khối thông báo
-- **Màn hình OLED 0.96"** hiển thị thông tin (trạng thái cửa, thông báo xác thực).  
-- **Đèn LED và còi báo động (buzzer)** phát tín hiệu cảnh báo khi có truy cập trái phép.
-
-#### 🔋 Khối nguồn
-- **Mạch YX850** giúp chuyển nguồn tự động, đảm bảo hệ thống hoạt động liên tục ngay cả khi mất điện.  
+Tất cả được xử lý bằng FSM để đảm bảo logic rõ ràng, dễ bảo trì và dễ mở rộng.
 
 ---
 
-### 💻 Phần mềm và Nền tảng
-- **Arduino IDE:** Viết và nạp chương trình cho ESP32.  
-- **Blynk IoT:** Tạo giao diện điều khiển và giám sát trên điện thoại (bật/tắt khóa, nhận thông báo cảnh báo).  
-- Giao tiếp giữa phần cứng và ứng dụng thông qua **kết nối Wi-Fi** và **Blynk Cloud API**.
+## 🧩 2. Phần cứng sử dụng  
+
+| Thiết bị | Mô tả |
+|---------|-------|
+| **ESP32** | Vi điều khiển chính |
+| **MFRC522** | Module đọc RFID |
+| **Keypad 4x4** | Nhập mật khẩu |
+| **Servo SG90** | Đóng/mở chốt cửa |
+| **OLED SSD1306 (I2C)** | Hiển thị |
+| **IR Sensor** | Phát hiện đột nhập |
+| **Buzzer** | Chuông cảnh báo |
+| **LED** | Trạng thái cửa |
+| **Blynk IoT** | Điều khiển từ xa |
 
 ---
 
-### 🧠 Kết quả đạt được
-- Hoàn thiện **mô hình khóa cửa thông minh** với đầy đủ phần cứng và phần mềm.  
-- **Độ ổn định cao**, phản hồi nhanh khi thao tác khóa/mở.  
-- **Kết nối Blynk ổn định**, thông báo gửi tức thời khi có sự kiện an ninh.  
-- Hệ thống đạt **100% các mục tiêu đề ra** trong phạm vi thử nghiệm.  
+## ⚙️ 3. Sơ đồ kết nối (GPIO Mapping)
+
+### ESP32 → RFID MFRC522
+
+| ESP32 | MFRC522 |
+|-------|---------|
+| 5 | SS |
+| 36 | RST |
+| 23 | MOSI |
+| 19 | MISO |
+| 18 | SCK |
+
+### Keypad 4x4
+
+| Hàng/Cột | GPIO |
+|----------|------|
+| R1 | 13 |
+| R2 | 12 |
+| R3 | 14 |
+| R4 | 27 |
+| C1 | 26 |
+| C2 | 25 |
+| C3 | 33 |
+| C4 | 32 |
+
+### Thiết bị khác
+
+| Chức năng | GPIO |
+|-----------|------|
+| Servo SG90 | 16 |
+| Buzzer | 15 |
+| IR Sensor | 17 |
+| LED Status | 2 |
+| OLED SDA/SCL | 21 / 22 |
 
 ---
 
-### 🧰 Tóm tắt phần cứng chính
-| Thành phần | Vai trò |
-|-------------|----------|
-| ESP32 | Vi điều khiển trung tâm |
-| RFID-RC522 | Xác thực bằng thẻ từ |
-| Keypad 4x4 | Nhập mật khẩu |
-| Servo SG90 | Chốt khóa cửa |
-| Cảm biến IR | Phát hiện trạng thái cửa |
-| OLED 0.96" | Hiển thị thông tin |
-| LED & Buzzer | Báo trạng thái và cảnh báo |
-| Mạch YX850 | Chuyển nguồn tự động |
+## 🧠 4. FSM – Finite State Machine  
+
+Hệ thống sử dụng 4 trạng thái chính:
+
+| Trạng thái | Mô tả |
+|------------|-------|
+| **STATE_IDLE** | Chờ thao tác |
+| **STATE_VERIFYING** | Đang xác thực dữ liệu |
+| **STATE_UNLOCKED** | Đã mở khóa, chờ Auto-lock |
+| **STATE_ALARM** | Báo động khi phát hiện đột nhập |
+
+FSM đảm bảo hệ thống hoạt động mượt và không bị block.
 
 ---
 
-### 🖼️ Mô tả tổng thể
-Hệ thống được thiết kế theo cấu trúc **modular**, đảm bảo tính mở rộng, dễ bảo trì và có thể tích hợp thêm các công nghệ như **nhận diện khuôn mặt**, **bảo mật OTP**, hoặc **kết nối MQTT** trong tương lai.
+## 🔓 5. Tính năng nổi bật  
+
+### ✔ Đa phương thức xác thực  
+- Keypad  
+- RFID card  
+- Blynk App  
+
+### ✔ Tự động đóng cửa  
+Servo sẽ tự đóng sau `LOCK_TIMEOUT_MS`.
+
+### ✔ Báo động thông minh  
+Phát hiện đột nhập bằng IR khi cửa đang mở → kích hoạt cảnh báo + gửi thông tin lên Blynk.
+
+### ✔ Non-blocking  
+- Sử dụng Polling liên tục  
+- Giảm thiểu delay  
+- Không làm treo hệ thống khi xử lý nhiều thiết bị cùng lúc
 
 ---
+
+## 📱 6. Blynk IoT  
+
+| Virtual Pin | Chức năng |
+|-------------|-----------|
+| `V1` | Trạng thái cửa (OPEN/CLOSED) |
+| `V2` | Nhập mật khẩu từ app |
+| `V3` | Nhận thông báo cảnh báo |
+
+---
+
+## 💾 7. Lưu mật khẩu trong Flash – Preferences  
+
+Mật khẩu được lưu vào Flash thông qua namespace:
 
